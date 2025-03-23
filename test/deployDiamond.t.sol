@@ -5,6 +5,9 @@ import "../contracts/interfaces/IDiamondCut.sol";
 import "../contracts/facets/DiamondCutFacet.sol";
 import "../contracts/facets/DiamondLoupeFacet.sol";
 import "../contracts/facets/OwnershipFacet.sol";
+import "../contracts/facets/SetterGetter.sol";
+import "../contracts/facets/EmailSetter.sol";
+import "../contracts/facets/SetterAddress.sol";
 import "forge-std/Test.sol";
 import "../contracts/Diamond.sol";
 
@@ -14,8 +17,11 @@ contract DiamondDeployer is Test, IDiamondCut {
     DiamondCutFacet dCutFacet;
     DiamondLoupeFacet dLoupe;
     OwnershipFacet ownerF;
+    SetterGetter setterGetter;
+    EmailSetter emailSetter;
+    SetterAddress setterAddress;
 
-    function testDeployDiamond() public {
+    function setUp() public {
         //deploy facets
         dCutFacet = new DiamondCutFacet();
         diamond = new Diamond(address(this), address(dCutFacet));
@@ -48,6 +54,82 @@ contract DiamondDeployer is Test, IDiamondCut {
 
         //call a function
         DiamondLoupeFacet(address(diamond)).facetAddresses();
+    }
+
+    function testAddFaucet() public {
+        setterGetter = new SetterGetter();
+
+        //build cut struct
+        FacetCut[] memory cut = new FacetCut[](1);
+        cut[0] = (
+            FacetCut({
+                facetAddress: address(setterGetter),
+                action: FacetCutAction.Add,
+                functionSelectors: generateSelectors("SetterGetter")
+            })
+        );
+
+        //upgrade diamond
+        IDiamondCut(address(diamond)).diamondCut(cut, address(0x0), "");
+        SetterGetter(address(diamond)).setName("Aji");
+        string memory name = SetterGetter(address(diamond)).getName();
+
+        assert(
+            keccak256(abi.encodePacked(name)) ==
+                keccak256(abi.encodePacked("Aji"))
+        ); // Ensure string comparison works
+
+        emailSetter = new EmailSetter();
+
+        // build cut struct
+        FacetCut[] memory cut1 = new FacetCut[](1);
+        cut1[0] = (
+            FacetCut({
+                facetAddress: address(emailSetter),
+                action: FacetCutAction.Add,
+                functionSelectors: generateSelectors("EmailSetter")
+            })
+        );
+
+        //upgrade diamond
+        IDiamondCut(address(diamond)).diamondCut(cut1, address(0x0), "");
+        EmailSetter(address(diamond)).setEmail("Freddy@mail.com");
+        string memory email = EmailSetter(address(diamond)).getEmail();
+
+        assert(
+            keccak256(abi.encodePacked(email)) ==
+                keccak256(abi.encodePacked("Freddy@mail.com"))
+        ); // Ensure string comparison works
+
+        SetterGetter(address(diamond)).setAge(20);
+
+        uint8 age = SetterGetter(address(diamond)).getAge();
+        assert(
+            keccak256(abi.encodePacked(age)) ==
+                keccak256(abi.encodePacked(uint8(20)))
+        ); // Ensure string comparison works
+
+        setterAddress = new SetterAddress();
+
+        // build cut struct
+        FacetCut[] memory cut2 = new FacetCut[](1);
+        cut2[0] = (
+            FacetCut({
+                facetAddress: address(setterAddress),
+                action: FacetCutAction.Add,
+                functionSelectors: generateSelectors("SetterAddress")
+            })
+        );
+
+        //upgrade diamond
+        IDiamondCut(address(diamond)).diamondCut(cut2, address(0x0), "");
+        SetterAddress(address(diamond)).setAddr("5 Main St");
+        string memory addr = SetterAddress(address(diamond)).getAddr();
+
+        assert(
+            keccak256(abi.encodePacked(addr)) ==
+                keccak256(abi.encodePacked("5 Main St"))
+        ); // Ensure string comparison works
     }
 
     function generateSelectors(

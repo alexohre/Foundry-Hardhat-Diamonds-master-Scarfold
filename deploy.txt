@@ -1,0 +1,29 @@
+
+******* DiamondCut *********
+forge create --rpc-url https://eth-sepolia.g.alchemy.com/v2/KX1L8OUxzzPpA2BK0oa2rRSbunp8M2aN \
+    --private-key 8d0382e2e3e7e0d1fe81034b0a9b09701c2439a06dc53da01cd94c59faf1bb0f \
+    --etherscan-api-key Y2GZUVAXGJSA9TU79SQBP1HTN17RIV81SN \
+    --verify \
+    --broadcast \
+    contracts/facets/DiamondCutFacet.sol:DiamondCutFacet
+
+
+    Deployed to: 0x4C1A404DF553ED9bd4BfAB1FC88Cef8370fC3677
+
+******* DiamondCut End *********
+
+
+
+****** Diamond *********
+forge create contracts/Diamond.sol:Diamond \
+    --broadcast \
+    --verify \
+    --etherscan-api-key Y2GZUVAXGJSA9TU79SQBP1HTN17RIV81SN \
+    --rpc-url https://eth-sepolia.g.alchemy.com/v2/KX1L8OUxzzPpA2BK0oa2rRSbunp8M2aN \
+    --private-key 8d0382e2e3e7e0d1fe81034b0a9b09701c2439a06dc53da01cd94c59faf1bb0f \
+    --constructor-args 0xF484aE8b082017E1e97dd96e795B405263B57D2c 0x4C1A404DF553ED9bd4BfAB1FC88Cef8370fC3677
+    
+
+ Deployed to: 0x5793f36ce867D6c457d205ade3441CCF764c0AF1 
+
+****** Diamond End *********
